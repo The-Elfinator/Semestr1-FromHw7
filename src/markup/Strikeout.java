@@ -17,9 +17,7 @@ public class Strikeout extends AbstractMarker {
 
     @Override
     public void toHtml(StringBuilder s) {
-        s.append("<s>");
-        super.toHtml(s);
-        s.append("</s>");
+        super.toHtml(s, "s");
     }
 
 }

@@ -14,4 +14,9 @@ public class Paragraph extends AbstractMarker {
     public void toMarkdown(StringBuilder s) {
         super.toMarkdown(s, "");
     }
+
+    @Override
+    public void toHtml(StringBuilder s) {
+        super.toHtml(s, "p");
+    }
 }

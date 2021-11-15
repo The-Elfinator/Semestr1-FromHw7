@@ -1,4 +1,4 @@
-// Выделение. Копипасту убрать :(
+// Выделение. Копипасту убрать :)
 
 package markup;
 
@@ -12,16 +12,12 @@ public class Emphasis extends AbstractMarker {
 
     @Override
     public void toMarkdown(StringBuilder s) {
-//        s.append("*");
         super.toMarkdown(s, "*");
-//        s.append("*");
     }
 
     @Override
     public void toHtml(StringBuilder s) {
-        s.append("<em>");
-        super.toHtml(s);
-        s.append("</em>");
+        super.toHtml(s, "em");
     }
 
 }

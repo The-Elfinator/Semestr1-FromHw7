@@ -19,9 +19,7 @@ public class Strong extends AbstractMarker {
 
     @Override
     public void toHtml(StringBuilder s) {
-        s.append("<strong>");
-        super.toHtml(s);
-        s.append("</strong>");
+        super.toHtml(s, "strong");
     }
 
 }

@@ -1,5 +1,5 @@
 // Использовать для общих методов \(^_^)/
-// ?Добавить protected функцию которая принимает StringBuilder и String и кастует String + StringBuilder.toMarkdown + String
+//  Done --- Добавить protected функцию которая принимает StringBuilder и String и кастует String + StringBuilder.toMarkdown + String
 package markup;
 
 import java.util.List;
@@ -19,19 +19,22 @@ public abstract class AbstractMarker implements Markers {
 
     protected void toMarkdown2(StringBuilder s) {
         for (Markers obj : list) {
-            StringBuilder s1 = new StringBuilder();
-            obj.toMarkdown(s1);
-            s.append(s1);
+            obj.toMarkdown(s);
         }
     }
 
-    @Override
-    public void toHtml(StringBuilder s) {
+    protected void toHtml(StringBuilder s, String teg) {
+        String openTeg = "<" + teg + ">";
+        String closeTeg = "</" + teg + ">";
+        s.append(openTeg);
+        toHtml2(s);
+        s.append(closeTeg);
+    }
+
+    public void toHtml2(StringBuilder s) {
         for (Markers obj : list) {
-            StringBuilder s1 = new StringBuilder();
-            obj.toHtml(s1);
-            s.append(s1);
+            obj.toHtml(s);
         }
     }
-    
+
 }
