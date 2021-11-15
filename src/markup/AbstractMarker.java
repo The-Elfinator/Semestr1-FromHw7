@@ -1,5 +1,3 @@
-// Использовать для общих методов \(^_^)/
-//  Done --- Добавить protected функцию которая принимает StringBuilder и String и кастует String + StringBuilder.toMarkdown + String
 package markup;
 
 import java.util.List;

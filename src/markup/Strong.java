@@ -12,9 +12,7 @@ public class Strong extends AbstractMarker {
 
     @Override
     public void toMarkdown(StringBuilder s) {
-
         super.toMarkdown(s, "__");
-
     }
 
     @Override
