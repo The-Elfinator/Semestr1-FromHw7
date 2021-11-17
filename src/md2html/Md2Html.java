@@ -1,10 +1,12 @@
 package md2html;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
 import markup.*;
+
 
 public class Md2Html {
 
@@ -13,16 +15,15 @@ public class Md2Html {
         final String output = args[1];
         try {
              MyScanner scanner = new MyScanner(new InputStreamReader(
-                    new FileInputStream(input), "utf-8"
+                    new FileInputStream(input), StandardCharsets.UTF_8
             ));
             try {
-                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
-                        new FileOutputStream(output), "utf-8"
-                ));
-                try {
+                try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
+                        new FileOutputStream(output), StandardCharsets.UTF_8
+                ))) {
                     StringBuilder s = new StringBuilder();
                     String line;
-                    List<Markers> list = new ArrayList<>();
+                    List<Markers> list;
                     StringBuilder currentText = new StringBuilder();
                     boolean isHeading = false;
                     boolean isParagraph = false;
@@ -42,7 +43,6 @@ public class Md2Html {
                                             level++;
                                         } else {
                                             if (line.charAt(i) != ' ') {
-                                                isHeading = false;
                                                 level = 0;
                                             } else {
                                                 isHeading = true;
@@ -51,8 +51,6 @@ public class Md2Html {
                                             break;
                                         }
                                     }
-                                } else {
-                                    isHeading = false;
                                 }
                             }
                             if (!isHeading) {
@@ -88,8 +86,6 @@ public class Md2Html {
                             currentText = new StringBuilder();
                         }
                     }
-                } finally {
-                    writer.close();
                 }
             } finally {
                 scanner.close();
@@ -99,25 +95,17 @@ public class Md2Html {
         } catch (IOException e) {
             System.out.println("Q('-'Q)   Couldn't read/write: " + e.getMessage());
         }
-//        StringBuilder s = new StringBuilder("*..--sample--*");
-//        List<Markers> list = currentTextToList(s);
-//        Paragraph paragraph = new Paragraph(list);
-//        StringBuilder res = new StringBuilder();
-//        paragraph.toHtml(res);
-//        System.out.println(res);
     }
 
     private static List<Markers> currentTextToList(StringBuilder currentText) {
-        //System.out.println(currentText);
         List<Markers> myList = new ArrayList<>();
         int indBeginMarker = 0, indEndMarker = 0;
         String currentTag = "";
-        String tags = "*-`_";
+        String tags = "*-`_'";
         boolean flag = false;
         boolean backSlash = false;
         int i = 0;
         while (i < currentText.length() + 1) {
-            //System.out.println(currentTag + ": " + currentText + " " + i + " " + indBeginMarker + " " + indEndMarker);
             if (flag) {
                 flag = false;
                 i++;
@@ -144,7 +132,6 @@ public class Md2Html {
                                     indEndMarker = i + 1;
                                     if (currentText.charAt(i) == currentText.charAt(i + 1)) {
                                         currentTag = String.valueOf(currentText.charAt(i)) + currentText.charAt(i);
-                                        //System.out.println(currentTag);
                                         indBeginMarker++;
                                         indEndMarker++;
                                         flag = true;
@@ -152,12 +139,14 @@ public class Md2Html {
                                 }
                             } else {
                                 if (i == currentText.length()) {
+                                    if (currentTag.length() == 2) {
+                                        indBeginMarker--;
+                                    }
                                     myList.add(new Text(String.valueOf(currentText.charAt(indBeginMarker - 1))));
                                     i = indBeginMarker;
                                     indEndMarker = indBeginMarker;
                                     currentTag = "";
                                 }
-                                //System.out.println(currentText.charAt(i));
                                 if ((currentTag.equals("**") || currentTag.equals("__")) &&
                                         currentText.charAt(i) == currentText.charAt(i + 1) &&
                                         currentTag.charAt(0) == currentText.charAt(i)) {
@@ -175,6 +164,16 @@ public class Md2Html {
                                     ))));
                                     indBeginMarker = i + 1;
                                     indEndMarker = i + 1;
+                                    currentTag = "";
+                                } else if (currentTag.equals("''") &&
+                                        currentText.charAt(i) == currentText.charAt(i + 1) &&
+                                        currentText.charAt(i) == currentTag.charAt(0)) {
+                                    myList.add(new Quotes(currentTextToList(new StringBuilder(
+                                            currentText.substring(indBeginMarker, indEndMarker)
+                                    ))));
+                                    indBeginMarker = i + 2;
+                                    indEndMarker = i + 2;
+                                    flag = true;
                                     currentTag = "";
                                 } else if (currentTag.equals("--") &&
                                         currentText.charAt(i) == currentText.charAt(i + 1) &&
@@ -202,10 +201,8 @@ public class Md2Html {
                                 currentText.replace(i, i+1, "&lt;");
                                 i++;
                                 indEndMarker++;
-                                //System.out.println(currentText + " " + currentText.charAt(i));
                             } else if (currentText.charAt(i) == '>') {
                                 currentText.replace(i, i+1, "&gt;");
-                                //System.out.println(currentText + " " + i);
                             } else if (currentText.charAt(i) == '&' && !currentText.substring(i, i+2).equals("&l")
                                     && !currentText.substring(i, i+2).equals("&g")
                                     && !currentText.substring(i, i+2).equals("&a")) {
