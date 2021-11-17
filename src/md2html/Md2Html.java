@@ -206,9 +206,9 @@ public class Md2Html {
                             } else if (currentText.charAt(i) == '>') {
                                 currentText.replace(i, i+1, "&gt;");
                                 //System.out.println(currentText + " " + i);
-                            } else if (currentText.charAt(i) == '&' && !currentText.substring(i, i+3).equals("&lt")
-                                    && !currentText.substring(i, i+3).equals("&gt")
-                                    && !currentText.substring(i, i+3).equals("&am")) {
+                            } else if (currentText.charAt(i) == '&' && !currentText.substring(i, i+2).equals("&l")
+                                    && !currentText.substring(i, i+2).equals("&g")
+                                    && !currentText.substring(i, i+2).equals("&a")) {
                                 currentText.replace(i, i+1, "&amp;");
                             }
                             indEndMarker++;
