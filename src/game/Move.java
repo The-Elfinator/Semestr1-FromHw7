@@ -1,7 +1,5 @@
 package game;
 
-import java.util.InputMismatchException;
-
 public class Move {
 
     private final Cell value;
@@ -18,11 +16,11 @@ public class Move {
         return value;
     }
 
-    public int getRow() throws InputMismatchException {
+    public int getRow() {
         return row;
     }
 
-    public int getCol() throws InputMismatchException {
+    public int getCol() {
         return col;
     }
 

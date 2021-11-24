@@ -1,6 +1,8 @@
-package game;
+package game.players;
 
-import java.util.InputMismatchException;
+import game.Move;
+import game.Position;
+
 import java.util.Scanner;
 
 public class HumanPlayer implements Player {
@@ -12,7 +14,7 @@ public class HumanPlayer implements Player {
     }
 
     @Override
-    public Move makeMove(Position position) throws InputMismatchException {
+    public Move makeMove(Position position) {
         System.out.println();
         System.out.println("Current position");
         System.out.println(position);

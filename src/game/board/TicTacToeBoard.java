@@ -1,4 +1,9 @@
-package game;
+package game.board;
+
+import game.Cell;
+import game.GameResult;
+import game.Move;
+import game.Position;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -65,31 +70,34 @@ public class TicTacToeBoard implements Board, Position {
         if (count == k) {
             return true;
         }
-        int x = this.x;
-        int y = this.y;
-        int[][] vectors = {{1, 1}, {-1, -1}, {1, 0}, {-1, 0}, {0, 1}, {0, -1}};
-        for (int t = 0; t < 6; t += 2) {
-            x += vectors[t][0];
-            y += vectors[t][1];
-            while (0 <= x && x < n && 0 <= y && y < m) {
-                if (field[x][y] == value) {
+        int posX, posY;
+        int[][] vectors = {{1, 1}, {-1, -1}, {1, -1}, {-1, 1}, {1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+        for (int t = 0; t < 8; t += 2) {
+            posX = this.x + vectors[t][0];
+            posY = this.y + vectors[t][1];
+            //System.out.println(posX + " " + posY);
+            while (0 <= posX && posX < n && 0 <= posY && posY < m) {
+                if (field[posX][posY].equals(value)) {
                     count++;
                 } else {
                     break;
                 }
-                x += vectors[t][0];
-                y += vectors[t][1];
+                posX += vectors[t][0];
+                posY += vectors[t][1];
+//                System.out.println(count);
             }
-            x = this.x + vectors[t + 1][0];
-            y = this.y + vectors[t + 1][1];
-            while (0 <= x && x < n && 0 <= y && y < m) {
-                if (field[x][y] == value) {
+            posX = this.x + vectors[t + 1][0];
+            posY = this.y + vectors[t + 1][1];
+//            System.out.println(posX + " " + posY);
+            while (0 <= posX && posX < n && 0 <= posY && posY < m) {
+                if (field[posX][posY].equals(value)) {
                     count++;
                 } else {
                     break;
                 }
-                x += vectors[t + 1][0];
-                y += vectors[t + 1][1];
+                posX += vectors[t + 1][0];
+                posY += vectors[t + 1][1];
+//                System.out.println(count);
             }
             if (count == k) {
                 return true;
@@ -110,17 +118,15 @@ public class TicTacToeBoard implements Board, Position {
                 && turn == move.getValue();
     }
 
-    @Override
-    public Cell getCell(int row, int column) {
-        return field[row][column];
-    }
+//    @Override
+//    public Cell getCell(int row, int column) {
+//        return field[row][column];
+//    }
 
     @Override
     public Cell getTurn() {
         return turn;
     }
-
-
 
     @Override
     public String toString() {

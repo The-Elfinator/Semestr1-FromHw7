@@ -1,9 +1,11 @@
 package game;
 
-public interface Position {
+import game.board.Board;
+
+public interface Position extends Board {
     Cell getTurn();
 
     boolean isValid(Move move);
 
-    Cell getCell(int row, int column);
+    //Cell getCell(int row, int column);
 }

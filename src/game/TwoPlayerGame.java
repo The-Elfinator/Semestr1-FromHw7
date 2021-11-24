@@ -1,6 +1,7 @@
 package game;
 
-import java.util.InputMismatchException;
+import game.board.Board;
+import game.players.Player;
 
 public class TwoPlayerGame {
     private final Board board;
@@ -26,7 +27,7 @@ public class TwoPlayerGame {
         }
     }
 
-    private int makeMove(Player player, int num, boolean log) throws InputMismatchException {
+    private int makeMove(Player player, int num, boolean log) {
         final Move move = player.makeMove(board.getPosition());
         final GameResult result = board.makeMove(move);
         if (log) {
