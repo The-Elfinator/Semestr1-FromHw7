@@ -1,8 +1,9 @@
-package game;
+package game.board;
 
-import game.board.TicTacToeBoard;
+import game.TwoPlayerGame;
 import game.players.CheatingPlayer;
 import game.players.HumanPlayer;
+import game.players.RandomPlayer;
 
 import java.util.Scanner;
 
@@ -18,9 +19,9 @@ public class Main {
         System.out.println("Игра началась");
         final int result = new TwoPlayerGame(
                 new TicTacToeBoard(n, m, k),
-                new CheatingPlayer(n, m),
+                new RandomPlayer(n, m),
                 new HumanPlayer(scanner)
-        ).play(true);
+        ).play(false);
         scanner.close();
         switch (result) {
             case 1 -> System.out.println("First player won!");

@@ -8,7 +8,7 @@ import game.Position;
 import java.util.Arrays;
 import java.util.Map;
 
-public class TicTacToeBoard implements Board, Position {
+class TicTacToeBoard implements Board, Position {
 
     private static final Map<Cell, String> CELL_TO_STRING = Map.of(
             Cell.E, ".",
@@ -41,6 +41,8 @@ public class TicTacToeBoard implements Board, Position {
     public Position getPosition() {
         return this;
     }
+
+
 
     @Override
     public GameResult makeMove(Move move) {
