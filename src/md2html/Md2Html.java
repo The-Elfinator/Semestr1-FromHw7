@@ -215,9 +215,7 @@ public class Md2Html {
                 }
             }
         }
-
         return myList;
-
     }
 
 }
