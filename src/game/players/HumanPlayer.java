@@ -18,7 +18,7 @@ public class HumanPlayer implements Player {
         System.out.println();
         System.out.println("Current position");
         System.out.println(position);
-        System.out.println("Enter you move for " + position.getTurn());
+        System.out.println("Enter your move for " + position.getTurn());
         while (true) {
             String a = in.next();
             String b = in.next();

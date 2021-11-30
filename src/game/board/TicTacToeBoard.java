@@ -13,7 +13,9 @@ class TicTacToeBoard implements Board, Position {
     private static final Map<Cell, String> CELL_TO_STRING = Map.of(
             Cell.E, ".",
             Cell.X, "X",
-            Cell.O, "O"
+            Cell.O, "O",
+            Cell.MINUS, "-",
+            Cell.SLASH, "|"
     );
 
     private final Cell[][] field;
@@ -62,7 +64,12 @@ class TicTacToeBoard implements Board, Position {
             return GameResult.DRAW;
         }
 
-        turn = turn == Cell.X ? Cell.O : Cell.X;
+        switch (turn) {
+            case X -> turn = Cell.O;
+            case O -> turn = Cell.MINUS;
+            case MINUS -> turn = Cell.SLASH;
+            case SLASH -> turn = Cell.X;
+        }
 
         return GameResult.UNKNOWN;
     }
@@ -120,14 +127,15 @@ class TicTacToeBoard implements Board, Position {
                 && turn == move.getValue();
     }
 
-//    @Override
-//    public Cell getCell(int row, int column) {
-//        return field[row][column];
-//    }
 
     @Override
     public Cell getTurn() {
         return turn;
+    }
+
+    @Override
+    public void setTurn(Cell cell) {
+        this.turn = cell;
     }
 
     @Override
