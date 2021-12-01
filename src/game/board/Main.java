@@ -77,7 +77,7 @@ public class Main {
                 default -> throw new AssertionError("Unknown error");
             }
         }
-        System.out.println("Let the battle begin");
+        System.out.println("Игра началась");
         final int result = new MultiPlayerGame(
                 new TicTacToeBoard(n, m, k), playerList
         ).play(true);
