@@ -1,16 +1,19 @@
 package expression;
 
-public abstract class Monom implements Expression {
+public abstract class Monom implements MyExpression {
     int a;
     String x;
     String tag;
 
     public Monom(int a) {
         this.a = a;
+        this.tag = "C";
     }
 
     public Monom(String x) {
         this.x = x;
+        this.tag = "V";
+        this.a = Integer.MAX_VALUE;
     }
 
     @Override
@@ -27,26 +30,30 @@ public abstract class Monom implements Expression {
     }
 
     @Override
-    public Expression getExpression1() {
+    public MyExpression getExpression1() {
         return null;
     }
 
     @Override
-    public Expression getExpression2() {
+    public abstract int hashCode();
+
+    @Override
+    public MyExpression getExpression2() {
         return null;
     }
 
-    public boolean equals(Expression expression, String tag) {
-        boolean flag = tag.equals(expression.getTag());
-        if (!flag) {
+    public boolean equals(Object object) {
+        if  (object == null || this.getClass() != object.getClass()) {
             return false;
         }
-        if (tag.equals("V")) {
-            flag = this.x.equals(expression.getX());
-        } else {
-            flag = this.a == expression.getA();
+        if (this.tag.equals(((Monom) object).getTag())
+                && this.a == ((Monom) object).getA()) {
+            if (this.x == null) {
+                return null == ((Monom) object).getX();
+            }
+            return this.x.equals(((Monom) object).getX());
         }
-        return flag;
+        return false;
     }
 
 }

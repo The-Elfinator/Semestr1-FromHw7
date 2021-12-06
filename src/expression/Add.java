@@ -2,7 +2,7 @@ package expression;
 
 public class Add extends Operation {
 
-    public Add(Expression expression1, Expression expression2) {
+    public Add(MyExpression expression1, MyExpression expression2) {
         super(expression1, expression2, "+");
     }
 }

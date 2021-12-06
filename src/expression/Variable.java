@@ -1,12 +1,16 @@
 package expression;
 
-public class Variable extends Monom {
+public class Variable extends Monom implements MyExpression {
 
     public Variable(String x) {
         super(x);
         super.tag = "V";
     }
 
+    @Override
+    public int hashCode() {
+        return super.x.charAt(0) * 7373;
+    }
 
     @Override
     public int evaluate(int x) {
@@ -16,11 +20,6 @@ public class Variable extends Monom {
     @Override
     public String toString() {
         return this.x;
-    }
-
-    @Override
-    public boolean equals(Expression expression) {
-        return super.equals(expression, "V");
     }
 
 }

@@ -1,11 +1,15 @@
 package expression;
 
-public class Const extends Monom {
+public class Const extends Monom implements MyExpression {
     public Const (int a) {
         super(a);
         super.tag = "C";
     }
 
+    @Override
+    public int hashCode() {
+        return super.a;
+    }
 
     @Override
     public int evaluate(int x) {
@@ -15,11 +19,6 @@ public class Const extends Monom {
     @Override
     public String toString() {
         return Integer.toString(a);
-    }
-
-    @Override
-    public boolean equals(Expression expression) {
-        return super.equals(expression, "C");
     }
 
 }
