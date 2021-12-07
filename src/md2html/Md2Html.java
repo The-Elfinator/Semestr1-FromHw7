@@ -147,61 +147,54 @@ public class Md2Html {
                                     indEndMarker = indBeginMarker;
                                     currentTag = "";
                                 }
-                                if (!currentTag.isEmpty()) {
-                                        if (currentTag.charAt(0) == currentText.charAt(i)) {
-                                            if (currentTag.length() == 1
-                                                    || (currentTag.length() == 2
-                                                            && currentText.charAt(i) == currentText.charAt(i+1))) {
-                                                boolean defFlag = false;
-                                                switch (currentTag) {
-                                                    case "**", "__" -> {
-                                                        myList.add(new Strong(currentTextToList(new StringBuilder(
-                                                                currentText.substring(indBeginMarker, indEndMarker)
-                                                        ))));
-                                                    }
-                                                    case "*", "_" -> {
-                                                        myList.add(new Emphasis(currentTextToList(new StringBuilder(
-                                                                currentText.substring(indBeginMarker, indEndMarker)
-                                                        ))));
-                                                    }
-                                                    case "''" -> {
-                                                        myList.add(new Quotes(currentTextToList(new StringBuilder(
-                                                                currentText.substring(indBeginMarker, indEndMarker)
-                                                        ))));
-                                                    }
-                                                    case "--" -> {
-                                                        myList.add(new Strikeout(currentTextToList(new StringBuilder(
-                                                                currentText.substring(indBeginMarker, indEndMarker)
-                                                        ))));
-                                                    }
-                                                    case "`" -> {
-                                                        myList.add(new Code(currentTextToList(new StringBuilder(
-                                                                currentText.substring(indBeginMarker, indEndMarker)
-                                                        ))));
-                                                    }
-                                                    default -> {
-                                                        indEndMarker++;
-                                                        defFlag = true;
-                                                    }
-                                                }
-                                                if (!defFlag) {
-                                                    indBeginMarker = i + 1;
-                                                    indEndMarker = i + 1;
-                                                    if (currentTag.length() == 2) {
-                                                        indBeginMarker++;
-                                                        indEndMarker++;
-                                                        flag = true;
-                                                    }
-                                                    currentTag = "";
-                                                }
-                                            } else {
-                                                indEndMarker++;
-                                            }
-                                        } else {
+                                if (!currentTag.isEmpty()
+                                        && currentTag.charAt(0) == currentText.charAt(i)
+                                        && (currentTag.length() == 1
+                                        || (currentTag.length() == 2
+                                            && currentText.charAt(i) == currentText.charAt(i+1)))) {
+                                    boolean defFlag = false;
+                                    switch (currentTag) {
+                                        case "**", "__" ->
+                                            myList.add(new Strong(currentTextToList(new StringBuilder(
+                                                    currentText.substring(indBeginMarker, indEndMarker)
+                                            ))));
+
+                                        case "*", "_" ->
+                                            myList.add(new Emphasis(currentTextToList(new StringBuilder(
+                                                    currentText.substring(indBeginMarker, indEndMarker)
+                                            ))));
+
+                                        case "''" ->
+                                            myList.add(new Quotes(currentTextToList(new StringBuilder(
+                                                    currentText.substring(indBeginMarker, indEndMarker)
+                                            ))));
+
+                                        case "--" ->
+                                            myList.add(new Strikeout(currentTextToList(new StringBuilder(
+                                                    currentText.substring(indBeginMarker, indEndMarker)
+                                            ))));
+
+                                        case "`" ->
+                                            myList.add(new Code(currentTextToList(new StringBuilder(
+                                                    currentText.substring(indBeginMarker, indEndMarker)
+                                            ))));
+
+                                        default -> {
                                             indEndMarker++;
+                                            defFlag = true;
                                         }
-                                }
-                                else {
+                                    }
+                                    if (!defFlag) {
+                                        indBeginMarker = i + 1;
+                                        indEndMarker = i + 1;
+                                        if (currentTag.length() == 2) {
+                                            indBeginMarker++;
+                                            indEndMarker++;
+                                            flag = true;
+                                        }
+                                        currentTag = "";
+                                    }
+                                } else {
                                     indEndMarker++;
                                 }
                             }

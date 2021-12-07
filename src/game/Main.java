@@ -1,6 +1,6 @@
-package game.board;
+package game;
 
-import game.MultiPlayerGame;
+import game.board.TicTacToeBoard;
 import game.players.*;
 
 import java.util.ArrayList;

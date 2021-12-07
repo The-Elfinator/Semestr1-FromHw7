@@ -1,6 +1,6 @@
 package expression;
 
-public class Const extends Monom implements MyExpression {
+public class Const extends Monom implements MyExpression, MyTripleExpression {
     public Const (int a) {
         super(a);
         super.tag = "C";
@@ -16,6 +16,10 @@ public class Const extends Monom implements MyExpression {
         return this.a;
     }
 
+    @Override
+    public int evaluate(int x, int y, int z) {
+        return this.a;
+    }
     @Override
     public String toString() {
         return Integer.toString(a);

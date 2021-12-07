@@ -8,7 +8,7 @@ import game.Position;
 import java.util.Arrays;
 import java.util.Map;
 
-class TicTacToeBoard implements Board, Position {
+public class TicTacToeBoard implements Board, Position {
 
     private static final Map<Cell, String> CELL_TO_STRING = Map.of(
             Cell.E, ".",
@@ -141,9 +141,7 @@ class TicTacToeBoard implements Board, Position {
     @Override
     public String toString() {
         StringBuilder tab = new StringBuilder();
-        for (int k = 0; k < (int) (Math.ceil(Math.log10(Math.max(n, m))) + 1); k++) {
-            tab.append(" ");
-        }
+        tab.append(" ".repeat(Math.max(0, (int) (Math.ceil(Math.log10(Math.max(n, m))) + 1))));
         final StringBuilder sb = new StringBuilder(" ");
         for (int c = 0; c < m; c++) {
             sb.append(tab.substring((int)(Math.log10(c + 1)))).append(c+1);

@@ -7,7 +7,8 @@ import java.util.Objects;
 /**
  * @author Georgiy Korneev (kgeorgiy@kgeorgiy.info)
  */
-public class Asserts {
+@SuppressWarnings("StaticMethodOnlyUsedInOneClass")
+public final class Asserts {
     static {
         Locale.setDefault(Locale.US);
     }
@@ -41,13 +42,18 @@ public class Asserts {
         assertTrue(String.format("%s: expected same objects: %s and %s", message, expected, actual), expected == actual);
     }
 
-    protected static void checkAssert(final Class<?> c) {
+    public static void checkAssert(final Class<?> c) {
         if (!c.desiredAssertionStatus()) {
             throw error("You should enable assertions by running 'java -ea %s'", c.getName());
         }
     }
 
     public static AssertionError error(final String format, final Object... args) {
-        return new AssertionError(String.format(format, args));
+        final String message = String.format(format, args);
+        if (args.length > 0 && args[args.length - 1] instanceof Throwable) {
+            return new AssertionError(message, (Throwable) args[args.length - 1]);
+        } else {
+            return new AssertionError(message);
+        }
     }
 }

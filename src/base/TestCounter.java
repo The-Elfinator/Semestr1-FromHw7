@@ -5,68 +5,157 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 /**
  * @author Georgiy Korneev (kgeorgiy@kgeorgiy.info)
  */
-public class TestCounter {
-    private long start = System.currentTimeMillis();
-    private int total = 0;
-    private int passed = 0;
+public class TestCounter extends Log {
+    public static final int DENOMINATOR = Integer.getInteger("base.denominator", 1);
+    private final Class<?> owner;
+    private final Map<String, ?> properties;
 
-    public void nextTest() {
-        total++;
+    public TestCounter(final Class<?> owner, final Map<String, ?> properties) {
+        this.owner = owner;
+        this.properties = properties;
     }
 
-    public int getTest() {
-        return total;
+    private final long start = System.currentTimeMillis();
+    private int passed;
+
+    public int getTestNo() {
+        return passed + 1;
     }
 
-    public void passed() {
-        passed++;
+    public void test(final Runnable action) {
+        testV(() -> {
+            action.run();
+            return null;
+        });
     }
 
-    public void printStatus(final Class<?> aClass) {
-        System.err.println("===========================================");
-        System.err.format("Test run: %d, passed: %d, failed: %d%n", total, passed, total - passed);
-        System.err.format("Finished in %d ms%n", System.currentTimeMillis() - start);
-        if (total != passed) {
-            System.err.println("TESTS FAILED");
-            System.exit(1);
+    public <T> void testForEach(final Iterable<? extends T> items, final Consumer<? super T> action) {
+        for (final T item : items) {
+            test(() -> action.accept(item));
         }
-        System.err.println("Version: " + getVersion(aClass));
     }
 
+    public <T> T testV(final Supplier<T> action) {
+        return silentScope("Test " + getTestNo(), () -> {
+            final T result = action.get();
+            passed++;
+            return result;
+        });
+    }
 
-    public static String getVersion(final Class clazz) {
+    private String getLine() {
+        return getIndent() == 0 ? "=" : "-";
+    }
+
+    public void printStatus() {
+        format("%s%n%s%n", getLine().repeat(30), title());
+        format("%d tests passed in %d ms%n", passed, System.currentTimeMillis() - start);
+        println("Version: " + getVersion(owner));
+        println("");
+    }
+
+    private String title() {
+        return String.format("%s %s", owner.getSimpleName(), properties.isEmpty() ? "" : properties);
+    }
+
+    private static String getVersion(final Class<?> clazz) {
         try {
-            ClassLoader cl = clazz.getClassLoader();
-            URL url = cl.getResource(clazz.getName().replace('.', '/') + ".class");
+            final ClassLoader cl = clazz.getClassLoader();
+            final URL url = cl.getResource(clazz.getName().replace('.', '/') + ".class");
             if (url == null) {
                 return "(no manifest)";
             } else {
-                String path = url.getPath();
-                String jarExt = ".jar";
-                int index = path.indexOf(jarExt);
-                SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+                final String path = url.getPath();
+                final String jarExt = ".jar";
+                final int index = path.indexOf(jarExt);
+                final SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
                 if (index != -1) {
-                    String jarPath = path.substring(0, index + jarExt.length());
-                    File file = new File(jarPath);
-                    String jarVersion = file.getName();
-                    try (JarFile jarFile = new JarFile(new File(new URI(jarPath)))) {
-                        JarEntry entry = jarFile.getJarEntry("META-INF/MANIFEST.MF");
+                    final String jarPath = path.substring(0, index + jarExt.length());
+                    try (final JarFile jarFile = new JarFile(new File(new URI(jarPath)))) {
+                        final JarEntry entry = jarFile.getJarEntry("META-INF/MANIFEST.MF");
                         return sdf.format(new Date(entry.getTime()));
                     }
                 } else {
                     return sdf.format(new Date(new File(path).lastModified()));
                 }
             }
-        } catch (IOException | URISyntaxException e) {
-            return "error: " + e.toString();
+        } catch (final IOException | URISyntaxException e) {
+            return "error: " + e;
+        }
+    }
+
+    public <T> T call(final String message, final SupplierE<T> supplier) {
+        return get(supplier).either(e -> fail(e, "%s", message), Function.identity());
+    }
+
+    public void shouldFail(final String message, @SuppressWarnings("TypeMayBeWeakened") final RunnableE action) {
+        test(() -> get(action).either(e -> null, v -> fail("%s", message)));
+    }
+
+    public <T> T fail(final String format, final Object... args) {
+        return fail(Asserts.error(format, args));
+    }
+
+    public <T> T fail(final Throwable throwable) {
+        return fail(throwable, "%s: %s", throwable.getClass().getSimpleName(), throwable.getMessage());
+    }
+
+    public <T> T fail(final Throwable throwable, final String format, final Object... args) {
+        final String message = String.format(format, args);
+        println("ERROR: " + message);
+        throw throwable instanceof Error ? (Error) throwable : new AssertionError(throwable);
+    }
+
+    public void checkTrue(final boolean condition, final String message, final Object... args) {
+        if (!condition) {
+            fail(message, args);
+        }
+    }
+
+    public static <T> Either<Exception, T> get(final SupplierE<T> supplier) {
+        return supplier.get();
+    }
+
+    public Path getFile(final String suffix) {
+        return Paths.get(String.format("test%d.%s", getTestNo(), suffix));
+    }
+
+    @FunctionalInterface
+    public interface SupplierE<T> extends Supplier<Either<Exception, T>> {
+        T getE() throws Exception;
+
+        @Override
+        default Either<Exception, T> get() {
+            try {
+                return Either.right(getE());
+            } catch (final Exception e) {
+                return Either.left(e);
+            }
+        }
+    }
+
+    @FunctionalInterface
+    public interface RunnableE extends SupplierE<Void> {
+        void run() throws Exception;
+
+        @Override
+        default Void getE() throws Exception {
+            run();
+            return null;
         }
     }
 }

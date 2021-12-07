@@ -1,6 +1,6 @@
 package expression;
 
-public abstract class Monom implements MyExpression {
+public abstract class Monom implements MyTripleExpression {
     int a;
     String x;
     String tag;
@@ -30,17 +30,10 @@ public abstract class Monom implements MyExpression {
     }
 
     @Override
-    public MyExpression getExpression1() {
-        return null;
-    }
-
-    @Override
     public abstract int hashCode();
 
-    @Override
-    public MyExpression getExpression2() {
-        return null;
-    }
+    public abstract int evaluate(int x);
+    public abstract int evaluate(int x, int y, int z);
 
     public boolean equals(Object object) {
         if  (object == null || this.getClass() != object.getClass()) {

@@ -1,6 +1,6 @@
 package expression;
 
-public abstract class Operation implements MyExpression {
+public abstract class Operation implements MyTripleExpression, MyExpression {
     MyExpression expression1, expression2;
     String tag;
 
@@ -22,33 +22,18 @@ public abstract class Operation implements MyExpression {
         return expression2;
     }
 
-    public int getA() {
-        return -1;
-    }
+    protected abstract int result(int a, int b);
 
-    public String getX() {
-        return null;
-    }
-
-    @Override
     public int evaluate(int x) {
         int a = expression1.evaluate(x);
         int b = expression2.evaluate(x);
-        switch (tag) {
-            case "+" -> {
-                return a + b;
-            }
-            case "-" -> {
-                return a - b;
-            }
-            case "*" -> {
-                return a * b;
-            }
-            case "/" -> {
-                return a / b;
-            }
-            default -> throw new AssertionError("UNKNOWN tag");
-        }
+        return result(a, b);
+    }
+
+    public int evaluate(int x, int y, int z) {
+        int a = expression1.evaluate(x, y, z);
+        int b = expression2.evaluate(x, y, z);
+        return result(a, b);
     }
 
     @Override

@@ -9,7 +9,7 @@ public class MultiPlayerGame {
     private final Board board;
     private final List<Player> playerList;
     private final int countInGame;
-    private int[] playersInGame = new int[4];
+    private final int[] playersInGame = new int[4];
 
     public MultiPlayerGame(Board board, List<Player> players) {
         this.board = board;
@@ -25,7 +25,12 @@ public class MultiPlayerGame {
             int ind = 0;
             for (Player player : playerList) {
                 if (playersInGame[ind] != 0) {
-                    final int result = makeMove(player, ind + 1, log);
+                    int result;
+                    try {
+                        result = makeMove(player, ind + 1, log);
+                    } catch (Exception e) {
+                        result = 10;
+                    }
                     if (result == 10) {
                         System.out.printf("Player number %s is lose", ind + 1);
                         System.out.println();
@@ -44,38 +49,17 @@ public class MultiPlayerGame {
                         if (curr == 1) {
                             return indInGame + 1;
                         }
-                        Cell x = board.getPosition().getTurn();
-                        switch (x) {
-                            case X -> x = Cell.O;
-                            case O -> x = Cell.MINUS;
-                            case MINUS -> x = Cell.SLASH;
-                            case SLASH -> x = Cell.X;
-                        }
-                        board.getPosition().setTurn(x);
+                        board.getPosition().setTurn(switchTurn());
                     }
                     else if (result != -1) {
                         return result;
                     }
                 } else {
-                    Cell x = board.getPosition().getTurn();
-                    switch (x) {
-                        case X -> x = Cell.O;
-                        case O -> x = Cell.MINUS;
-                        case MINUS -> x = Cell.SLASH;
-                        case SLASH -> x = Cell.X;
-                    }
-                    board.getPosition().setTurn(x);
+                    board.getPosition().setTurn(switchTurn());
                 }
                 ind++;
                 while (ind >= countInGame && ind < 4) {
-                    Cell x = board.getPosition().getTurn();
-                    switch (x) {
-                        case X -> x = Cell.O;
-                        case O -> x = Cell.MINUS;
-                        case MINUS -> x = Cell.SLASH;
-                        case SLASH -> x = Cell.X;
-                    }
-                    board.getPosition().setTurn(x);
+                    board.getPosition().setTurn(switchTurn());
                     ind++;
                 }
 
@@ -83,9 +67,25 @@ public class MultiPlayerGame {
         }
     }
 
+    private Cell switchTurn() {
+        Cell x = board.getPosition().getTurn();
+        switch (x) {
+            case X -> x = Cell.O;
+            case O -> x = Cell.MINUS;
+            case MINUS -> x = Cell.SLASH;
+            case SLASH -> x = Cell.X;
+        }
+        return x;
+    }
+
 
     private int makeMove(Player player, int num, boolean log) {
-        final Move move = player.makeMove(board.getPosition());
+        Move move;
+        try {
+            move = player.makeMove(board.getPosition());
+        } catch (Exception e) {
+            return 10;
+        }
         final GameResult result = board.makeMove(move);
         if (log) {
             System.out.println();
@@ -94,17 +94,12 @@ public class MultiPlayerGame {
             System.out.println(board);
             System.out.println("Result: " + result);
         }
-        switch (result) {
-            case WIN:
-                return num;
-            case LOSE:
-                return 10;
-            case DRAW:
-                return 0;
-            case UNKNOWN:
-                return -1;
-            default:
-                throw new AssertionError("Unknown makeMove result " + result);
-        }
+        return switch (result) {
+            case WIN -> num;
+            case LOSE -> 10;
+            case DRAW -> 0;
+            case UNKNOWN -> -1;
+            default -> throw new AssertionError("Unknown makeMove result " + result);
+        };
     }
 }

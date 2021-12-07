@@ -1,6 +1,7 @@
 package expression;
 
-public class Variable extends Monom implements MyExpression {
+
+public class Variable extends Monom implements MyExpression, MyTripleExpression {
 
     public Variable(String x) {
         super(x);
@@ -22,4 +23,21 @@ public class Variable extends Monom implements MyExpression {
         return this.x;
     }
 
+    @Override
+    public int evaluate(int x, int y, int z) {
+        switch (this.x.toLowerCase()) {
+            case "x" -> {
+                return x;
+            }
+            case "y" -> {
+                return y;
+            }
+            case "z" -> {
+                return z;
+            }
+            default -> {
+                return 0;
+            }
+        }
+    }
 }
