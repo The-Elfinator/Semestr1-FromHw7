@@ -83,6 +83,9 @@ public class MultiPlayerGame {
         Move move;
         try {
             move = player.makeMove(board.getPosition());
+            if (move == null) {
+                return 10;
+            }
         } catch (Exception e) {
             return 10;
         }
@@ -99,7 +102,6 @@ public class MultiPlayerGame {
             case LOSE -> 10;
             case DRAW -> 0;
             case UNKNOWN -> -1;
-            default -> throw new AssertionError("Unknown makeMove result " + result);
         };
     }
 }

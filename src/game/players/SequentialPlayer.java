@@ -5,15 +5,14 @@ import game.Position;
 
 public class SequentialPlayer implements Player {
 
-    private final int n, m;
+    public SequentialPlayer() {
 
-    public SequentialPlayer(int n, int m) {
-        this.n = n;
-        this.m = m;
     }
 
     @Override
     public Move makeMove(Position position) {
+        int n = position.getN();
+        int m = position.getM();
         for (int r = 0; r < n; r++) {
             for (int c = 0; c < m; c++) {
                 final Move move = new Move(position.getTurn(), r, c);

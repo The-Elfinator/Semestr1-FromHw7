@@ -7,11 +7,9 @@ import java.util.Random;
 
 public class NullPlayer implements Player {
 
-    private final int n, m;
 
-    public NullPlayer(int n, int m) {
-        this.n = n;
-        this.m = m;
+    public NullPlayer() {
+
     }
 
     @Override

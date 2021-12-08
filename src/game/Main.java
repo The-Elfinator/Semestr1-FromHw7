@@ -70,10 +70,10 @@ public class Main {
                 }
             }
             switch (ind) {
-                case 1 -> playerList.add(new RandomPlayer(n, m));
-                case 2 -> playerList.add(new CheatingPlayer(n, m));
+                case 1 -> playerList.add(new RandomPlayer());
+                case 2 -> playerList.add(new CheatingPlayer());
                 case 3 -> playerList.add(new HumanPlayer(scanner));
-                case 4 -> playerList.add(new SequentialPlayer(n, m));
+                case 4 -> playerList.add(new SequentialPlayer());
                 default -> throw new AssertionError("Unknown error");
             }
         }

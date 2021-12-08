@@ -127,6 +127,15 @@ public class TicTacToeBoard implements Board, Position {
                 && turn == move.getValue();
     }
 
+    @Override
+    public int getN() {
+        return this.n;
+    }
+
+    @Override
+    public int getM() {
+        return this.m;
+    }
 
     @Override
     public Cell getTurn() {

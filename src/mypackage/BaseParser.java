@@ -16,7 +16,7 @@ public class BaseParser {
 
     protected char take() {
         final char result = ch;
-        ch = source.hasNext()? source.next() : END;
+        ch = source.hasNext() ? source.next() : END;
         return result;
     }
 
@@ -33,7 +33,7 @@ public class BaseParser {
         if (!take(expected)) {
             throw error(String.format(
                     "Expected '%s', found '%s'",
-                    expected, ch
+                    expected, ch != END ? ch : "end-of-input"
             ));
             // message about error
         }
@@ -47,6 +47,10 @@ public class BaseParser {
         for (final char c : expected.toCharArray()) {
             expect(c);
         }
+    }
+
+    protected boolean between(final char min, final char max) {
+        return min <= ch && ch <= max;
     }
 
     protected boolean end() {
