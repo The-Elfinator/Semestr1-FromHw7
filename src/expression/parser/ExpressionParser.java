@@ -6,116 +6,149 @@ import mypackage.CharSource;
 import mypackage.StringCharSource;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class ExpressionParser implements Parser {
+    public ExpressionParser() {
+
+    }
 
     @Override
-    public TripleExpression parse(String expression) {
+    public MyTripleExpression parse(String expression) {
         return parse(new StringCharSource(expression));
     }
 
-    private static TripleExpression parse(StringCharSource source) {
+
+    public MyTripleExpression parse(CharSource source) {
         return new MyParser(source).parse();
     }
 
     private static class MyParser extends BaseParser {
 
-        public MyParser(CharSource source) {
+        MyParser(CharSource source) {
             super(source);
         }
 
         public MyTripleExpression parse() {
-            final MyTripleExpression result = parseElement();
-            if (end()) {
-                return result;
+            skipSpaces();
+            MyTripleExpression result;
+            ArrayList<MyTripleExpression> stackOfExps = new ArrayList<>();
+            ArrayList<String> queueOfOpers = new ArrayList<>();
+            do {
+                if (isBegOfOperation(getCurrent())) {
+                    String operation = parseOperation();
+                    skipSpaces();
+                    queueOfOpers.add(operation);
+                    stackOfExps.add(parse());
+                } else {
+                    MyTripleExpression exp = parseElement();
+                    stackOfExps.add(exp);
+                }
+            } while (!end());
+            MyTripleExpression exp2 = stackOfExps.remove(stackOfExps.size() - 1);
+            if (!queueOfOpers.isEmpty()) {
+                if (stackOfExps.isEmpty()) {
+                    result = parseUnaryOperation(queueOfOpers.remove(queueOfOpers.size() - 1), exp2);
+                } else {
+                    MyTripleExpression exp1 = stackOfExps.remove(stackOfExps.size() - 1);
+                    result = parseBinaryOperation(queueOfOpers.remove(queueOfOpers.size() - 1), exp1, exp2);
+                }
+            } else {
+                result = exp2;
             }
-            return null;
-            //throw error("Expected end of input. Found non end");
+            return result;
         }
 
         private MyTripleExpression parseElement() {
             skipSpaces();
-            MyTripleExpression res = parseExp();
+            final MyTripleExpression res = parseValue();
             skipSpaces();
             return res;
         }
 
-        private MyTripleExpression parseExp() {
-            ArrayList<MyTripleExpression> stackOfExps = new ArrayList<>();
-            ArrayList<Character> stackOfOper = new ArrayList<>();
-            char ch = take();
-            if ('x' <= ch && ch <= 'z') {
-                stackOfExps.add(new Variable(Character.toString(ch)));
-            } else if ('0' <= ch && ch <= '9') {
-                stackOfExps.add(parseNumber(ch));
-            } else if (isOperation(ch)) {
-                stackOfOper.add(ch);
-                parseElement();
+        private MyTripleExpression parseValue() {
+            if (between('0', '9')) {
+                return parseConstant();
+            } else if (between('x', 'z')) {
+                return parseVariable();
             } else {
-                return null;
+                System.err.println("I can't do it right now");
+                throw new AssertionError("Error. Expected digit or x..z, found: " + getCurrent());
             }
-            while (!stackOfOper.isEmpty()) {
-                char op = stackOfOper.remove(-1);
-                MyTripleExpression exp1 = stackOfExps.remove(-1);
-                MyTripleExpression exp2 = stackOfExps.remove(-1);
-                stackOfExps.add(createExpression(op, exp1, exp2));
-            }
-            return stackOfExps.get(0);
         }
 
-        private MyTripleExpression createExpression(char op, MyTripleExpression exp1, MyTripleExpression exp2) {
-            switch (op) {
-                case '+' -> {
+        private MyTripleExpression parseBinaryOperation(String operation, MyTripleExpression exp1, MyTripleExpression exp2) {
+            switch (operation) {
+                case "+" -> {
                     return new Add(exp1, exp2);
                 }
-                case '-' -> {
+                case "-" -> {
                     return new Subtract(exp1, exp2);
                 }
-                case '*' -> {
+                case "*" -> {
                     return new Multiply(exp1, exp2);
                 }
-                case '/' -> {
+                case "/" -> {
                     return new Divide(exp1, exp2);
                 }
-                default -> throw new AssertionError("Found unknown operation");
             }
+            return null;
         }
 
-        private MyTripleExpression parseNumber(char first) {
-            final StringBuilder number = new StringBuilder();
-            number.append(first);
-            if (first == '0') {
-                return new Const(0);
+        private MyTripleExpression parseUnaryOperation(String operation, MyTripleExpression exp2) {
+            switch (operation) {
+                case "-" -> {
+                    return new Negate(exp2);
+                }
             }
-            while (between('0', '9')) {
-                number.append(take());
-            }
-            try {
-                int r = Integer.parseInt(number.toString());
-                return new Const(r);
-            } catch (NumberFormatException e) {
-                throw error("Invalid number: " + number + ": " + e.getMessage());
-            }
+            return null;
         }
 
-        private boolean isOperation(char c) {
-            List<Character> oper = List.of('+', '-', '*', '/');
-            for (Character s : oper) {
-                if (c == s) {
+        private String parseOperation() {
+            StringBuilder res = new StringBuilder();
+            while (isOper(getCurrent())) {
+                res.append(take());
+            }
+            return res.toString();
+        }
+
+        private boolean isOper(char current) {
+            char[] ops = {'+', '*', '/', '-'};
+            for (char c : ops) {
+                if (current == c) {
                     return true;
                 }
             }
             return false;
         }
 
-        private void skipSpaces() {
-            while (take(' ') || take('\t') || take('\r') || take('\n')){
-                //do nothing
-
+        private boolean isBegOfOperation(char symb) {
+            char[] opers = {'+', '*', '/', '-'};
+            for (char c : opers) {
+                if (symb == c) {
+                    return true;
+                }
             }
+            return false;
         }
 
+        private MyTripleExpression parseVariable() {
+            char var = take();
+            return new Variable(Character.toString(var));
+        }
 
+        private MyTripleExpression parseConstant() {
+            StringBuilder con = new StringBuilder();
+            if (take('0')) {
+                return new Const(0);
+            }
+            do {
+                con.append(take());
+            } while (between('0', '9'));
+            return new Const(Integer.parseInt(con.toString()));
+        }
+
+        private void skipSpaces() {
+            while (take(' ') || take('\n') || take('\r') || take('\t'));
+        }
     }
 }

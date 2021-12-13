@@ -1,10 +1,10 @@
 package expression;
 
-public abstract class UnaryOperation implements TripleExpression {
-    MyTripleExpression expression;
+public abstract class UnaryOperation implements MyTripleExpression {
+    MyExpression expression;
     String tag;
 
-    protected UnaryOperation(MyTripleExpression expression, String tag) {
+    protected UnaryOperation(MyExpression expression, String tag) {
         this.expression = expression;
         this.tag = tag;
     }
@@ -13,14 +13,25 @@ public abstract class UnaryOperation implements TripleExpression {
         return tag;
     }
 
-    public MyTripleExpression getExpression() {
+    public MyExpression getExpression() {
         return expression;
+    }
+
+    @Override
+    public String toString(){
+        String a = this.expression.toString();
+        return "(-" + a + ")";
     }
 
     protected abstract int result(int a);
 
+    public int evaluate(int x) {
+        int a = expression.evaluate(x);
+        return result(a);
+    }
+
     public int evaluate(int x, int y, int z) {
-        int a = expression.evaluate(x, y, z);
+        int a = ((MyTripleExpression) expression).evaluate(x, y, z);
         return result(a);
     }
 

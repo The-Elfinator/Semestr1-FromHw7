@@ -2,7 +2,7 @@ package expression;
 
 public class Negate extends UnaryOperation {
 
-    public Negate(MyTripleExpression expression) {
+    public Negate(MyExpression expression) {
         super(expression, "neg");
     }
 
