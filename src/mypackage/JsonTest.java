@@ -12,8 +12,6 @@ public class JsonTest {
         Assert.assertEquals("Input: \"" + json + "\"", expected, Json.parse(json));
     }
 
-
-
     private void invalid(final String invalidJson) {
         try {
             final Object result = Json.parse(invalidJson);
@@ -49,6 +47,7 @@ public class JsonTest {
         valid("hello", "\"hello\"");
         valid("   hello   ", "\"   hello   \"");
         valid("hello", "   \"hello\"   ");
+
     }
 
     @Test

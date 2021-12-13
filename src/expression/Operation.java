@@ -31,8 +31,8 @@ public abstract class Operation implements MyTripleExpression, MyExpression {
     }
 
     public int evaluate(int x, int y, int z) {
-        int a = expression1.evaluate(x, y, z);
-        int b = expression2.evaluate(x, y, z);
+        int a = ((MyTripleExpression) expression1).evaluate(x, y, z);
+        int b = ((MyTripleExpression) expression2).evaluate(x, y, z);
         return result(a, b);
     }
 

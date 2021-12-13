@@ -1,7 +1,7 @@
 package mypackage;
 
 public class BaseParser {
-    private static final char END = 0;
+    private final char END = 0;
     private final CharSource source;
     private char ch;
 
