@@ -20,7 +20,7 @@ public abstract class UnaryOperation implements MyTripleExpression {
     @Override
     public String toString(){
         String a = this.expression.toString();
-        return "(-" + a + ")";
+        return "-" + a;
     }
 
     protected abstract int result(int a);

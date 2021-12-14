@@ -34,14 +34,22 @@ public class ExpressionParser implements Parser {
             ArrayList<MyTripleExpression> stackOfExps = new ArrayList<>();
             ArrayList<String> queueOfOpers = new ArrayList<>();
             do {
-                if (isBegOfOperation(getCurrent())) {
+                if (getCurrent() == ')') {
+                    take();
+                    break;
+                }
+                if (!stackOfExps.isEmpty() && isBegOfOperation(getCurrent())) {
                     String operation = parseOperation();
-                    skipSpaces();
-                    queueOfOpers.add(operation);
-                    stackOfExps.add(parse());
+                    if (operation.equals("*") || operation.equals("/")) {
+                        stackOfExps.add(parseBinaryOperation(
+                                operation, stackOfExps.remove(stackOfExps.size() - 1), parseElement()
+                        ));
+                    } else {
+                        queueOfOpers.add(operation);
+                        stackOfExps.add(parse());
+                    }
                 } else {
-                    MyTripleExpression exp = parseElement();
-                    stackOfExps.add(exp);
+                    stackOfExps.add(parseElement());
                 }
             } while (!end());
             MyTripleExpression exp2 = stackOfExps.remove(stackOfExps.size() - 1);
@@ -66,14 +74,26 @@ public class ExpressionParser implements Parser {
         }
 
         private MyTripleExpression parseValue() {
-            if (between('0', '9')) {
+            if (take('(')) {
+                return parseExp();
+            } else if (take('-')) {
+                return parseUnaryOperation("-", parseElement());
+            } else if (between('0', '9')) {
                 return parseConstant();
             } else if (between('x', 'z')) {
                 return parseVariable();
             } else {
-                System.err.println("I can't do it right now");
-                throw new AssertionError("Error. Expected digit or x..z, found: " + getCurrent());
+                System.err.println("I can't do it right now but the great force of \u262dSoviet Union\u262d will help me with that problem");
+                throw new AssertionError("Error. Expected digit or x..z or '-' or '(', found: " + (int) getCurrent());
             }
+        }
+
+        private MyTripleExpression parseExp() {
+            skipSpaces();
+            if (take(')')) {
+                return null;
+            }
+            return parse();
         }
 
         private MyTripleExpression parseBinaryOperation(String operation, MyTripleExpression exp1, MyTripleExpression exp2) {
@@ -148,7 +168,7 @@ public class ExpressionParser implements Parser {
         }
 
         private void skipSpaces() {
-            while (take(' ') || take('\n') || take('\r') || take('\t'));
+            while (take(' ') || take('\t') || take('\r') || take('\n') || take('\u000B'));
         }
     }
 }
