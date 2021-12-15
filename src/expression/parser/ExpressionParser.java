@@ -172,6 +172,7 @@ public class ExpressionParser implements Parser {
             StringBuilder res = new StringBuilder();
             while (isOper(getCurrent())) {
                 res.append(take());
+                break;
             }
             return res.toString();
         }

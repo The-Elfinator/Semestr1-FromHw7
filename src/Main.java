@@ -23,6 +23,11 @@ public class Main {
         System.out.println(parser.parse("-3 - -z"));
         System.out.println(parser.parse("----------------3"));
         System.out.println(parser.parse("---------------3"));
+        System.out.println(parser.parse("  0   -   -  1  "));
+        System.out.println(parser.parse("0   --  1"));
+
+        System.out.println(parser.parse("0--1"));
+        System.out.println(parser.parse("0--x"));
         System.out.println(parser.parse("3 + x * z"));
         System.out.println(parser.parse("3 * x + \n         z"));
         System.out.println(parser.parse("3 * (x + z)     "));
@@ -30,6 +35,8 @@ public class Main {
         System.out.println(parser.parse("0 + -1"));
         MyTripleExpression expression = parser.parse("(0 + -1)");
         System.out.println(expression);
+        System.out.println(parser.parse("x + y + x"));
+        System.out.println(parser.parse("x*y*x"));
         System.out.println(parser.parse(""));
         // System.out.println(new Const(2).evaluate(0, 0, 0));
         // System.out.println(add.evaluate(0, 0, 0));
