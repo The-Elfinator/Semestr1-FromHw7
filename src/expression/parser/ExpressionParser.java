@@ -35,6 +35,7 @@ public class ExpressionParser implements Parser {
             MyTripleExpression result;
             ArrayList<MyTripleExpression> stackOfExps = new ArrayList<>();
             ArrayList<String> queueOfOpers = new ArrayList<>();
+            int ind = 0;
             do {
                 if (end()) {
                     break;
@@ -46,27 +47,31 @@ public class ExpressionParser implements Parser {
                 }
                 if (!stackOfExps.isEmpty() && isBegOfOperation(getCurrent())) {
                     String operation = parseOperation();
+                    MyTripleExpression exp = parseElement();
+                    stackOfExps.add(exp);
                     if (operation.equals("*") || operation.equals("/")) {
-                        MyTripleExpression exp = parseElement();
+
                         if (log) {
                             System.err.println(exp);
                         }
-                        MyTripleExpression expres = parseBinaryOperation(
-                                operation, stackOfExps.remove(stackOfExps.size() - 1), exp
-                        );
-                        if (log) {
-                            System.err.println(expres);
-                        }
-                        stackOfExps.add(expres);
-                    } else {
-                        c += 5;
-                        MyTripleExpression e = parse();
-                        if (log) {
-                            System.err.println(e);
-                        }
-                        c -= 5;
                         queueOfOpers.add(operation);
-                        stackOfExps.add(e);
+//                        MyTripleExpression expres = parseBinaryOperation(
+//                                operation, stackOfExps.remove(stackOfExps.size() - 1), exp
+//                        );
+//                        if (log) {
+//                            System.err.println(expres);
+//                        }
+//                        stackOfExps.add(expres);
+                    } else {
+//                        c += 5;
+//                        MyTripleExpression e = parse();
+//                        if (log) {
+//                            System.err.println(e);
+//                        }
+//                        c -= 5;
+                        queueOfOpers.add(ind, operation);
+                        ind++;
+                        //stackOfExps.add(e);
                     }
                 } else {
                     MyTripleExpression elem = parseElement();
@@ -79,17 +84,47 @@ public class ExpressionParser implements Parser {
             if (stackOfExps.size() == 0) {
                 return null;
             }
-            MyTripleExpression exp2 = stackOfExps.remove(stackOfExps.size() - 1);
-            if (!queueOfOpers.isEmpty()) {
-                if (stackOfExps.isEmpty()) {
-                    result = parseUnaryOperation(queueOfOpers.remove(queueOfOpers.size() - 1), exp2);
-                } else {
-                    MyTripleExpression exp1 = stackOfExps.remove(stackOfExps.size() - 1);
-                    result = parseBinaryOperation(queueOfOpers.remove(queueOfOpers.size() - 1), exp1, exp2);
-                }
-                System.err.println(result);
+
+            if (queueOfOpers.isEmpty()) {
+                result = stackOfExps.remove(stackOfExps.size() - 1);
             } else {
-                result = exp2;
+//                while (!queueOfOpers.isEmpty()) {
+//                    MyTripleExpression exp2 = stackOfExps.remove(stackOfExps.size() - 1);
+//                    if (stackOfExps.isEmpty()) {
+//                        MyTripleExpression expression = parseUnaryOperation(queueOfOpers.remove(queueOfOpers.size() - 1), exp2);
+//                        stackOfExps.add(expression);
+//                    } else {
+//                        MyTripleExpression exp1 = stackOfExps.remove(stackOfExps.size() - 1);
+//                        MyTripleExpression expression = parseBinaryOperation(queueOfOpers.remove(queueOfOpers.size() - 1), exp1, exp2);
+//                        stackOfExps.add(expression);
+//                    }
+//                }
+                MyTripleExpression expression = null;
+                if (ind != queueOfOpers.size()) {
+                     expression = parseBinaryOperation(queueOfOpers.get(ind),
+                            stackOfExps.get(ind), stackOfExps.get(ind + 1));
+                    for (int i = ind + 1 ; i < queueOfOpers.size() - 1; i++) {
+                        expression = parseBinaryOperation(queueOfOpers.get(i),
+                                expression, stackOfExps.get(i + 1));
+                    }
+                }
+                MyTripleExpression expression1 = null;
+                if (ind > 0) {
+                    expression1 = parseBinaryOperation(queueOfOpers.get(0), stackOfExps.get(0), stackOfExps.get(1));
+                } else if (ind == 0) {
+                    return parseBinaryOperation(queueOfOpers.get(0), stackOfExps.get(0), expression);
+                }
+                for (int i = 0; i < ind - 1; i++) {
+                    expression1 = parseBinaryOperation(queueOfOpers.get(i), expression1, stackOfExps.get(i + 1));
+                }
+                if (expression1 == null) {
+                    return expression;
+                } else if (expression == null) {
+                    return expression1;
+                } else {
+                    return parseBinaryOperation(queueOfOpers.get(ind - 1), expression, expression1);
+
+                }
             }
             StringBuilder sb = new StringBuilder();
             sb.append(">".repeat(c));
