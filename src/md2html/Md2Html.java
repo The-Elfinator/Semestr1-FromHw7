@@ -5,7 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-import markup.*;
+import md2html.markup.*;
 
 
 public class Md2Html {
@@ -14,7 +14,7 @@ public class Md2Html {
         final String input = args[0];
         final String output = args[1];
         try {
-             MyScanner scanner = new MyScanner(new InputStreamReader(
+            MyScanner scanner = new MyScanner(new InputStreamReader(
                     new FileInputStream(input), StandardCharsets.UTF_8
             ));
             try {
@@ -56,7 +56,8 @@ public class Md2Html {
                             if (!isHeading) {
                                 isParagraph = true;
                             }
-                            currentText.append(line.substring(indStart));
+                            String sbLine = line.substring(indStart);
+                            currentText.append(sbLine);
                             indStart = 0;
                         } else {
                             if (!scanner.hasNextLine()) {
@@ -122,16 +123,18 @@ public class Md2Html {
                         if (i == currentText.length() || tags.indexOf(currentText.charAt(i)) != -1) {
                             if (currentTag.isEmpty()) {
                                 if (i == currentText.length()) {
-                                    myList.add(new Text(currentText.substring(indBeginMarker, indEndMarker)));
+                                    String str = currentText.substring(indBeginMarker, indEndMarker);
+                                    myList.add(new Text(str));
                                 } else {
                                     if (indBeginMarker != indEndMarker) {
-                                        myList.add(new Text(currentText.substring(indBeginMarker, indEndMarker)));
+                                        String str = currentText.substring(indBeginMarker, indEndMarker);
+                                        myList.add(new Text(str));
                                     }
                                     currentTag = String.valueOf(currentText.charAt(i));
                                     indBeginMarker = i + 1;
                                     indEndMarker = i + 1;
                                     if (currentText.charAt(i) == currentText.charAt(i + 1)) {
-                                        currentTag = String.valueOf(currentText.charAt(i)) + currentText.charAt(i);
+                                        currentTag += currentText.charAt(i);
                                         indBeginMarker++;
                                         indEndMarker++;
                                         flag = true;
@@ -142,57 +145,59 @@ public class Md2Html {
                                     if (currentTag.length() == 2) {
                                         indBeginMarker--;
                                     }
-                                    myList.add(new Text(String.valueOf(currentText.charAt(indBeginMarker - 1))));
+                                    String value = String.valueOf(currentText.charAt(indBeginMarker - 1));
+                                    myList.add(new Text(value));
                                     i = indBeginMarker;
                                     indEndMarker = indBeginMarker;
                                     currentTag = "";
                                 }
                                 if (!currentTag.isEmpty()
                                         && currentTag.charAt(0) == currentText.charAt(i)
-                                        && (currentTag.length() == 1
+                                        && ((currentTag.length() == 1)
                                         || (currentTag.length() == 2
-                                            && currentText.charAt(i) == currentText.charAt(i+1)))) {
-                                    boolean defFlag = false;
-                                    switch (currentTag) {
-                                        case "**", "__" ->
-                                            myList.add(new Strong(currentTextToList(new StringBuilder(
-                                                    currentText.substring(indBeginMarker, indEndMarker)
-                                            ))));
-
-                                        case "*", "_" ->
-                                            myList.add(new Emphasis(currentTextToList(new StringBuilder(
-                                                    currentText.substring(indBeginMarker, indEndMarker)
-                                            ))));
-
-                                        case "''" ->
-                                            myList.add(new Quotes(currentTextToList(new StringBuilder(
-                                                    currentText.substring(indBeginMarker, indEndMarker)
-                                            ))));
-
-                                        case "--" ->
-                                            myList.add(new Strikeout(currentTextToList(new StringBuilder(
-                                                    currentText.substring(indBeginMarker, indEndMarker)
-                                            ))));
-
-                                        case "`" ->
-                                            myList.add(new Code(currentTextToList(new StringBuilder(
-                                                    currentText.substring(indBeginMarker, indEndMarker)
-                                            ))));
-
-                                        default -> {
-                                            indEndMarker++;
-                                            defFlag = true;
+                                        && currentText.charAt(i) == currentText.charAt(i+1)))) {
+                                    if (currentTag.length() == 1 && i < currentText.length() - 1
+                                            && currentText.charAt(i) == currentText.charAt(i + 1)) {
+                                        backSlash = true;
+                                        indEndMarker++;
+                                    } else {
+                                        boolean defFlag = false;
+                                        switch (currentTag) {
+                                            case "**", "__" -> {
+                                                StringBuilder sb = new StringBuilder(currentText.substring(indBeginMarker, indEndMarker));
+                                                myList.add(new Strong(currentTextToList(sb)));
+                                            }
+                                            case "*", "_" -> {
+                                                StringBuilder sb = new StringBuilder(currentText.substring(indBeginMarker, indEndMarker));
+                                                myList.add(new Emphasis(currentTextToList(sb)));
+                                            }
+                                            case "''" -> {
+                                                StringBuilder sb = new StringBuilder(currentText.substring(indBeginMarker, indEndMarker));
+                                                myList.add(new Quotes(currentTextToList(sb)));
+                                            }
+                                            case "--" -> {
+                                                StringBuilder sb = new StringBuilder(currentText.substring(indBeginMarker, indEndMarker));
+                                                myList.add(new Strikeout(currentTextToList(sb)));
+                                            }
+                                            case "`" -> {
+                                                StringBuilder sb = new StringBuilder(currentText.substring(indBeginMarker, indEndMarker));
+                                                myList.add(new Code(currentTextToList(sb)));
+                                            }
+                                            default -> {
+                                                indEndMarker++;
+                                                defFlag = true;
+                                            }
                                         }
-                                    }
-                                    if (!defFlag) {
-                                        indBeginMarker = i + 1;
-                                        indEndMarker = i + 1;
-                                        if (currentTag.length() == 2) {
-                                            indBeginMarker++;
-                                            indEndMarker++;
-                                            flag = true;
+                                        if (!defFlag) {
+                                            indBeginMarker = i + 1;
+                                            indEndMarker = i + 1;
+                                            if (currentTag.length() == 2) {
+                                                indBeginMarker++;
+                                                indEndMarker++;
+                                                flag = true;
+                                            }
+                                            currentTag = "";
                                         }
-                                        currentTag = "";
                                     }
                                 } else {
                                     indEndMarker++;

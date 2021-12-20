@@ -1,9 +1,6 @@
 package expression.parser;
 
 import expression.*;
-import mypackage.BaseParser;
-import mypackage.CharSource;
-import mypackage.StringCharSource;
 
 import java.util.ArrayList;
 
@@ -24,112 +21,39 @@ public class ExpressionParser implements Parser {
 
     private static class MyParser extends BaseParser {
 
+        int countOfMinuses;
+
         MyParser(CharSource source) {
             super(source);
         }
-        int c = 10;
 
         public MyTripleExpression parse() {
             boolean log = false;
-            skipSpaces();
             MyTripleExpression result;
             ArrayList<MyTripleExpression> stackOfExps = new ArrayList<>();
             ArrayList<String> queueOfOpers = new ArrayList<>();
-            int ind = 0;
             do {
-                if (end()) {
-                    break;
-                }
                 if (getCurrent() == ')') {
-                    take();
-                    skipSpaces();
                     break;
                 }
-                if (!stackOfExps.isEmpty() && isBegOfOperation(getCurrent())) {
+                if (isBegOfOperation(getCurrent()) && !stackOfExps.isEmpty()) {
                     String operation = parseOperation();
-                    MyTripleExpression exp = parseElement();
-                    stackOfExps.add(exp);
-                    if (operation.equals("*") || operation.equals("/")) {
-
-                        if (log) {
-                            System.err.println(exp);
-                        }
-                        queueOfOpers.add(operation);
-//                        MyTripleExpression expres = parseBinaryOperation(
-//                                operation, stackOfExps.remove(stackOfExps.size() - 1), exp
-//                        );
-//                        if (log) {
-//                            System.err.println(expres);
-//                        }
-//                        stackOfExps.add(expres);
-                    } else {
-//                        c += 5;
-//                        MyTripleExpression e = parse();
-//                        if (log) {
-//                            System.err.println(e);
-//                        }
-//                        c -= 5;
-                        queueOfOpers.add(ind, operation);
-                        ind++;
-                        //stackOfExps.add(e);
-                    }
-                } else {
-                    MyTripleExpression elem = parseElement();
-                    if (log) {
-                        System.err.println(elem);
-                    }
-                    stackOfExps.add(elem);
+                    queueOfOpers.add(operation);
                 }
+                MyTripleExpression exp = parseElement();
+                stackOfExps.add(exp);
             } while (!end());
-            if (stackOfExps.size() == 0) {
-                return null;
-            }
-
-            if (queueOfOpers.isEmpty()) {
-                result = stackOfExps.remove(stackOfExps.size() - 1);
-            } else {
-//                while (!queueOfOpers.isEmpty()) {
-//                    MyTripleExpression exp2 = stackOfExps.remove(stackOfExps.size() - 1);
-//                    if (stackOfExps.isEmpty()) {
-//                        MyTripleExpression expression = parseUnaryOperation(queueOfOpers.remove(queueOfOpers.size() - 1), exp2);
-//                        stackOfExps.add(expression);
-//                    } else {
-//                        MyTripleExpression exp1 = stackOfExps.remove(stackOfExps.size() - 1);
-//                        MyTripleExpression expression = parseBinaryOperation(queueOfOpers.remove(queueOfOpers.size() - 1), exp1, exp2);
-//                        stackOfExps.add(expression);
-//                    }
-//                }
-                MyTripleExpression expression = null;
-                if (ind != queueOfOpers.size()) {
-                     expression = parseBinaryOperation(queueOfOpers.get(ind),
-                            stackOfExps.get(ind), stackOfExps.get(ind + 1));
-                    for (int i = ind + 1 ; i < queueOfOpers.size() - 1; i++) {
-                        expression = parseBinaryOperation(queueOfOpers.get(i),
-                                expression, stackOfExps.get(i + 1));
+            result = null;
+            if (!stackOfExps.isEmpty()) {
+                if (queueOfOpers.isEmpty()) {
+                    result = stackOfExps.remove(stackOfExps.size() - 1);
+                } else {
+                    while (!queueOfOpers.isEmpty()) {
+                        MyTripleExpression expression2 = stackOfExps.remove(stackOfExps.size() - 1);
+                        MyTripleExpression expression1 = stackOfExps.remove(stackOfExps.size() - 1);
+                        result = parseBinaryOperation(queueOfOpers.remove(queueOfOpers.size() - 1), expression1, expression2);
                     }
                 }
-                MyTripleExpression expression1 = null;
-                if (ind > 0) {
-                    expression1 = parseBinaryOperation(queueOfOpers.get(0), stackOfExps.get(0), stackOfExps.get(1));
-                } else if (ind == 0) {
-                    return parseBinaryOperation(queueOfOpers.get(0), stackOfExps.get(0), expression);
-                }
-                for (int i = 0; i < ind - 1; i++) {
-                    expression1 = parseBinaryOperation(queueOfOpers.get(i), expression1, stackOfExps.get(i + 1));
-                }
-                if (expression1 == null) {
-                    return expression;
-                } else if (expression == null) {
-                    return expression1;
-                } else {
-                    return parseBinaryOperation(queueOfOpers.get(ind - 1), expression, expression1);
-
-                }
-            }
-            StringBuilder sb = new StringBuilder();
-            sb.append(">".repeat(c));
-            if (log) {
-                System.err.println(sb);
             }
             return result;
         }
@@ -142,21 +66,23 @@ public class ExpressionParser implements Parser {
         }
 
         private MyTripleExpression parseValue() {
-            if (take('(')) {
+            if (getCurrent() == '(') {
                 return parseExp();
-            } else if (take('-')) {
+            } else if (getCurrent() == '-') {
+                take();
+                countOfMinuses++;
+                skipSpaces();
                 int sign = 1; //1 - neg, 0 - pos
                 while (take('-')) {
+                    countOfMinuses++;
                     sign = sign == 1 ? 0 : 1;
+                    skipSpaces();
                 }
-                if (sign == 0) {
-                    return parseElement();
+                if (between('0', '9')) {
+                    countOfMinuses = 0;
+                    return parseConstant(1);
                 } else {
-                    if (between('0', '9')) {
-                        return parseConstant(1);
-                    } else {
-                        return parseUnaryOperation("-", parseElement());
-                    }
+                    return parseUnaryOperation("-", parseElement());
                 }
             } else if (between('0', '9')) {
                 return parseConstant(0);
@@ -164,15 +90,16 @@ public class ExpressionParser implements Parser {
                 return parseVariable();
             } else {
                 System.err.println("I can't do it right now but the great force of \u262dSoviet Union\u262d will help me with that problem");
-                throw new AssertionError("Error. Expected digit or x..z or '-' or '(', found: " + getCurrent() + " " + (int) getCurrent());
+                throw new AssertionError("Error. Expected digit or 'x', 'y', 'z' or '-' or '(', found: " + getCurrent() + " " + (int) getCurrent());
             }
         }
 
         private MyTripleExpression parseExp() {
             skipSpaces();
-//            if (take(')')) {
-//                return null;
-//            }
+            if (getCurrent() == ')') {
+                take();
+                return null;
+            }
             return parse();
         }
 
@@ -197,7 +124,11 @@ public class ExpressionParser implements Parser {
         private MyTripleExpression parseUnaryOperation(String operation, MyTripleExpression exp2) {
             switch (operation) {
                 case "-" -> {
-                    return new Negate(exp2);
+                    while (countOfMinuses > 0) {
+                        countOfMinuses--;
+                        return new Negate(parseUnaryOperation("-", exp2));
+                    }
+                    return exp2;
                 }
             }
             return null;
@@ -205,14 +136,13 @@ public class ExpressionParser implements Parser {
 
         private String parseOperation() {
             StringBuilder res = new StringBuilder();
-            while (isOper(getCurrent())) {
+            if (isOperation(getCurrent())) {
                 res.append(take());
-                break;
             }
             return res.toString();
         }
 
-        private boolean isOper(char current) {
+        private boolean isOperation(char current) {
             char[] ops = {'+', '*', '/', '-'};
             for (char c : ops) {
                 if (current == c) {
@@ -223,6 +153,7 @@ public class ExpressionParser implements Parser {
         }
 
         private boolean isBegOfOperation(char symb) {
+            skipSpaces();
             char[] opers = {'+', '*', '/', '-'};
             for (char c : opers) {
                 if (symb == c) {
