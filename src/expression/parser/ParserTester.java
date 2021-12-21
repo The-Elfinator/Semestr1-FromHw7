@@ -33,9 +33,15 @@ public class ParserTester extends BaseTester {
 
     private final List<Op<TExpression>> tests = new ArrayList<>();
     private final Parser parser = new ExpressionParser();
+    private final boolean safe;
 
     public ParserTester(final TestCounter counter, final int mode) {
+        this(counter, mode, true);
+    }
+
+    protected ParserTester(final TestCounter counter, final int mode, final boolean safe) {
         super(counter, mode);
+        this.safe = safe;
 
         example("x+2", (x, y, z) -> x + 2);
         example("2-y", (x, y, z) -> 2 - y);
@@ -86,16 +92,27 @@ public class ParserTester extends BaseTester {
     private void test(final TestGenerator.Test<Integer> test) {
         final String full = test.full;
         final String mini = test.mini;
+        final String safe = test.safe;
         final Node<Integer> extraTest = extraParens(test.node);
 
         final TripleExpression fullParsed = parse(full, false);
+        final TripleExpression miniParsed = parse(mini, false);
+        final TripleExpression safeParsed = parse(safe, false);
 
         checkToString(full, mini, "base", fullParsed);
+        if (mode > 0) {
+            counter.test(() -> Asserts.assertEquals("mini.toMiniString", mini, miniParsed.toMiniString()));
+            counter.test(() -> Asserts.assertEquals("safe.toMiniString", mini, safeParsed.toMiniString()));
+        }
         checkToString(full, mini, "extraParentheses", parse(generator.full(extraTest), false));
         checkToString(full, mini, "noSpaces", parse(removeSpaces(full), false));
         checkToString(full, mini, "extraSpaces", parse(extraSpaces(full), false));
 
-        check(expr.render(test.node), fullParsed, new int[]{random.nextInt(), random.nextInt(), random.nextInt()});
+        final TExpression expected = expr.render(test.node);
+        check(expected, fullParsed, new int[]{random.nextInt(), random.nextInt(), random.nextInt()});
+        if (this.safe) {
+            check(expected, safeParsed, new int[]{random.nextInt(), random.nextInt(), random.nextInt()});
+        }
     }
 
     private static final String LOOKBEHIND = "(?<![a-zA-Z0-9<>*/+-])";

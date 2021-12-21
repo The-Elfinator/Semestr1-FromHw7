@@ -19,23 +19,25 @@ public class TestGenerator<C> {
 
     private final Generator<C> generator;
     private final FullRenderer<C> full = new FullRenderer<>();
-    private final MiniRenderer<C> mini = new MiniRenderer<>();
+    private final MiniRenderer<C> mini = new MiniRenderer<>(false);
+    private final MiniRenderer<C> safe = new MiniRenderer<>(true);
 
     private final List<Node<C>> args;
     private final List<Node<C>> basicTests;
     private final List<Node<C>> variables = new ArrayList<>();
     private final List<Node<C>> consts;
-    private final boolean vebose;
+    private final boolean verbose;
 
     public TestGenerator(
             final TestCounter counter,
             final ExtendedRandom random,
             final Supplier<C> constant,
             final List<C> constants,
-            final boolean vebose) {
+            final boolean verbose
+    ) {
         this.counter = counter;
         this.random = random;
-        this.vebose = vebose;
+        this.verbose = verbose;
 
         generator = new Generator<>(random, constant);
         full.unary("(", a -> "(" + a + ")");
@@ -46,7 +48,7 @@ public class TestGenerator<C> {
     }
 
     private void test(final Node<C> node, final Consumer<Test<C>> consumer) {
-        consumer.accept(new Test<>(full.render(node), mini.render(node), node));
+        consumer.accept(new Test<>(full.render(node), mini.render(node), safe.render(node), node));
     }
 
     private Node<C> c() {
@@ -71,6 +73,7 @@ public class TestGenerator<C> {
         generator.add(name, 0);
         full.nullary(name);
         mini.nullary(name);
+        safe.nullary(name);
         basicTests(f(name));
         args.add(f(name));
         variables.add(f(name));
@@ -80,8 +83,9 @@ public class TestGenerator<C> {
         generator.add(name, 1);
         full.unary(name);
         mini.unary(name);
+        safe.unary(name);
 
-        if (vebose) {
+        if (verbose) {
             args.stream().map(a -> f(name, a)).forEachOrdered(basicTests::add);
         } else {
             basicTests(
@@ -106,8 +110,9 @@ public class TestGenerator<C> {
         generator.add(name, 2);
         full.binary(name);
         mini.binary(name, priority);
+        safe.binary(name, priority);
 
-        if (vebose) {
+        if (verbose) {
             args.stream().flatMap(a -> args.stream().map(b -> f(name, a, b))).forEachOrdered(basicTests::add);
         } else {
             basicTests(
@@ -150,11 +155,13 @@ public class TestGenerator<C> {
     public static class Test<C> {
         public final String full;
         public final String mini;
+        public final String safe;
         public final Node<C> node;
 
-        public Test(final String full, final String mini, final Node<C> node) {
+        public Test(final String full, final String mini, final String safe, final Node<C> node) {
             this.full = full;
             this.mini = mini;
+            this.safe = safe;
             this.node = node;
         }
     }

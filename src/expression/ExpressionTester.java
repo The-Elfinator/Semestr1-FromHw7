@@ -200,7 +200,7 @@ public class ExpressionTester<E extends ToMiniString, V, C> extends BaseTester {
     private final class Generator {
         private final expression.common.Generator<C> generator;
         private final FullRenderer<C> full = new FullRenderer<>();
-        private final MiniRenderer<C> mini = new MiniRenderer<>();
+        private final MiniRenderer<C> mini = new MiniRenderer<>(false);
         private final Renderer<C, E> expected;
         private final Renderer<C, E> actual;
         private final Renderer<C, E> copy;

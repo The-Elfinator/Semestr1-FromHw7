@@ -67,9 +67,10 @@ public class Generator<C> {
 
     public void testRandom(final int denominator, final TestCounter counter, final Consumer<Node<C>> consumer) {
         final int d = Math.max(TestCounter.DENOMINATOR, denominator);
-        testRandom(counter, consumer, 1, 1000 / d / d, 1, this::generateSize);
-        testRandom(counter, consumer, 2, 12, 100 / d / d, this::generateFullDepth);
-        testRandom(counter, consumer, 3, 777 / d, 1, this::generatePartialDepth);
+        testRandom(counter, consumer, 1, 100, 100 / d, depth -> generateFullDepth(Math.min(depth, 3)));
+        testRandom(counter, consumer, 2, 1000 / d, 1, this::generateSize);
+        testRandom(counter, consumer, 3, 12, 100 / d, this::generateFullDepth);
+        testRandom(counter, consumer, 4, 777 / d, 1, this::generatePartialDepth);
     }
 
     private static <C> void testRandom(

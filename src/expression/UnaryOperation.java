@@ -20,10 +20,10 @@ public abstract class UnaryOperation implements MyTripleExpression {
     @Override
     public String toString(){
         String a = this.expression.toString();
-        if (this.expression instanceof Const || this.expression instanceof Variable || this.expression instanceof UnaryOperation) {
-            return "-(" + a + ")";
-        }
-        return "-" + a;
+//        if (this.expression instanceof Const || this.expression instanceof Variable || this.expression instanceof UnaryOperation) {
+//            return "-(" + a + ")";
+//        }
+        return "-(" + a + ")";
     }
 
     protected abstract int result(int a);
