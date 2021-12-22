@@ -1,11 +1,14 @@
 import expression.*;
-import expression.parser.ExpressionParser;
+import expression.exceptions.ExpressionParser;
 
 import java.util.ArrayList;
 
 
 public class Main {
-
+    // !!!!!!!!!!!!!!!!!!!!!
+    // aminb - a = " ", ")"; b = " ", "-", "("
+    // l0a - a = " ", "-", "("
+    // !!!!!!!!!!!!!!!!!!!!!
     public static void main(String[] args) {
         try {
             Negate negate = new Negate(new Negate(new Add(new Variable("x"), new Const(2))));
@@ -16,14 +19,14 @@ public class Main {
 //        System.out.println(exp);
             //((((y + x) + -2147483648) - x) + x)
             //f(-1534516706, -816864994, 1077556082)
-            System.out.println(new ExpressionParser().parse("1 + 1 - - 1"));
+            //System.out.println(new ExpressionParser().parse("1 + 1 - - 1"));
             int x = -1534516706;
             int y = -816864994;
             int z = 1077556082;
             int r = ((((y + x) + (-2147483648)) - x) + x);
 
-            System.out.println(new ExpressionParser().parse("-(-2147483648)"));
-            System.out.println(new ExpressionParser().parse("--2147483648"));
+//            System.out.println(new ExpressionParser().parse("-(-2147483648)"));
+//            System.out.println(new ExpressionParser().parse("--2147483648"));
 
 //            System.out.println(r);
 //            System.out.println(new ExpressionParser().parse("((((y + x) + -2147483648) - x) + x)").evaluate(-1534516706, -816864994, 1077556082));
@@ -111,7 +114,12 @@ public class Main {
         } catch (StackOverflowError e) {
             System.out.println("Stack over flow " + e.getMessage());
         }
-        System.out.println(Integer.numberOfTrailingZeros(0));
+//        System.out.println(new ExpressionParser().parse("x + x"));
+//        //System.out.println(new ExpressionParser().parse("5min5"));
+        System.out.println(new ExpressionParser().parse("l0(0)"));
+        System.out.println(new ExpressionParser().parse("5 + t0 7"));
+        System.out.println(new ExpressionParser().parse("5 * x + t0 7"));
+
     }
 
 }

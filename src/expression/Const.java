@@ -13,6 +13,7 @@ public class Const extends Monom implements MyExpression, MyTripleExpression {
 
     @Override
     public int evaluate(int x) {
+        System.err.println("Evaluating Constant");
         return this.a;
     }
 

@@ -4,6 +4,7 @@ public class BaseParser {
     private final char END = 0;
     private final CharSource source;
     private char ch;
+    private char prev = 0;
 
     public BaseParser(CharSource source) {
         this.source = source;
@@ -22,6 +23,7 @@ public class BaseParser {
 
     // return current symbol and read next
     protected char take() {
+        prev = ch;
         final char result = ch;
         ch = source.hasNext() ? source.next() : END;
         return result;
@@ -67,5 +69,9 @@ public class BaseParser {
     // return 'true' if there is end of input data, otherwise return 'false'
     protected boolean end() {
         return test(END);
+    }
+
+    protected char getPrev() {
+        return this.prev;
     }
 }

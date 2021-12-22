@@ -1,6 +1,7 @@
 package expression.parser;
 
 import expression.*;
+import expression.exceptions.*;
 
 import java.util.ArrayList;
 
@@ -165,16 +166,16 @@ public class ExpressionParser implements Parser {
         private MyTripleExpression parseBinaryOperation(String operation, MyTripleExpression exp1, MyTripleExpression exp2) {
             switch (operation) {
                 case "+" -> {
-                    return new Add(exp1, exp2);
+                    return new CheckedAdd(exp1, exp2);
                 }
                 case "-" -> {
-                    return new Subtract(exp1, exp2);
+                    return new CheckedSubtract(exp1, exp2);
                 }
                 case "*" -> {
-                    return new Multiply(exp1, exp2);
+                    return new CheckedMultiply(exp1, exp2);
                 }
                 case "/" -> {
-                    return new Divide(exp1, exp2);
+                    return new CheckedDivide(exp1, exp2);
                 }
                 case "min" -> {
                     return new Min(exp1, exp2);
@@ -193,7 +194,7 @@ public class ExpressionParser implements Parser {
                     while (countOfMinuses > 0) {
                         // System.err.println("In loop negate " + countOfMinuses);
                         countOfMinuses--;
-                        return new Negate(parseUnaryOperation("-", exp2, countOfMinuses));
+                        return new CheckedNegate(parseUnaryOperation("-", exp2, countOfMinuses));
                     }
                     return exp2;
                 }
@@ -264,7 +265,7 @@ public class ExpressionParser implements Parser {
         private MyTripleExpression parseConstant(int cntOfMinus) {
             skipSpaces();
             if (cntOfMinus > 1) {
-                return new Negate(parseConstant(cntOfMinus - 1));
+                return new CheckedNegate(parseConstant(cntOfMinus - 1));
             }
             StringBuilder con = new StringBuilder();
             if (cntOfMinus == 1) {

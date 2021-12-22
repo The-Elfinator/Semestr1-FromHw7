@@ -8,6 +8,8 @@ public abstract class Operation implements MyTripleExpression, MyExpression {
         this.expression1 = expression1;
         this.expression2 = expression2;
         this.tag = tag;
+//        System.err.println(">>>>>>>>>>>>>>>>");
+//        System.err.println(expression1.getClass() + " " + expression2.getClass() + " " + tag);
     }
 
     public String getTag() {
@@ -31,9 +33,12 @@ public abstract class Operation implements MyTripleExpression, MyExpression {
     }
 
     public int evaluate(int x, int y, int z) {
+        //System.err.println("(" + expression1.toString() + " " + tag + " " + expression2.toString() + ")");
         int a = ((MyTripleExpression) expression1).evaluate(x, y, z);
         int b = ((MyTripleExpression) expression2).evaluate(x, y, z);
-        return result(a, b);
+        int r = result(a, b);
+
+        return r;
     }
 
     @Override

@@ -7,6 +7,8 @@ public abstract class UnaryOperation implements MyTripleExpression {
     protected UnaryOperation(MyExpression expression, String tag) {
         this.expression = expression;
         this.tag = tag;
+//        System.err.println(expression.getClass() + " " + tag);
+//        System.err.println("++++++++++++++++++++++++++++");
     }
 
     public String getTag() {
@@ -20,10 +22,8 @@ public abstract class UnaryOperation implements MyTripleExpression {
     @Override
     public String toString(){
         String a = this.expression.toString();
-//        if (this.expression instanceof Const || this.expression instanceof Variable || this.expression instanceof UnaryOperation) {
-//            return "-(" + a + ")";
-//        }
-        return "-(" + a + ")";
+        String tag1 = this.tag.equals("neg") ? "-" : this.tag;
+        return tag1 + "(" + a + ")";
     }
 
     protected abstract int result(int a);
@@ -34,6 +34,7 @@ public abstract class UnaryOperation implements MyTripleExpression {
     }
 
     public int evaluate(int x, int y, int z) {
+        //System.err.println("-(" + expression + ")");
         int a = ((MyTripleExpression) expression).evaluate(x, y, z);
         return result(a);
     }
